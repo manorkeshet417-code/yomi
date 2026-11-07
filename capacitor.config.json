@@ -1,0 +1,8 @@
+{
+  "appId": "com.yomi.app",
+  "appName": "יומי",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#eef0f4"
+  }
+}
