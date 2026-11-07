@@ -18,7 +18,8 @@ self.addEventListener('activate', e => {
 function fromNetwork(req) {
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error('timeout')), TIMEOUT);
-    fetch(req).then(res => {
+    // no-cache: always revalidate with the server (Pages lets browsers keep files for 10 minutes)
+    fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(res => {
       clearTimeout(t);
       if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
       resolve(res);
