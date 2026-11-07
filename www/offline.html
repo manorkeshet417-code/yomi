@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>יומי</title>
+<style>
+  /* Shown by the Android app only when the very first launch has no internet */
+  :root{--bg:#f2f2f7;--fg:#000;--muted:#6c6c70;--accent:#0066cc;--on:#fff}
+  @media (prefers-color-scheme: dark){:root{--bg:#000;--fg:#fff;--muted:#aeaeb2;--accent:#0a84ff;--on:#000;color-scheme:dark}}
+  html,body{height:100%;margin:0}
+  body{background:var(--bg);color:var(--fg);font-family:-apple-system,"Heebo","Segoe UI",Roboto,sans-serif;display:grid;place-items:center;text-align:center;padding:24px;box-sizing:border-box}
+  .box{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:320px}
+  .icon{width:80px;height:80px;border-radius:20px;background:var(--accent);color:var(--on);display:grid;place-items:center;font-size:40px;font-weight:700}
+  h1{font-size:24px;margin:8px 0 0}
+  p{color:var(--muted);margin:0;line-height:1.4}
+  button{margin-top:12px;min-height:50px;padding:0 28px;border:0;border-radius:999px;background:var(--accent);color:var(--on);font:inherit;font-size:17px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="icon">י</div>
+  <h1>אין חיבור לאינטרנט</h1>
+  <p>בפעם הראשונה יומי צריכה אינטרנט כדי להיטען. אחרי זה היא עובדת גם בלי חיבור.</p>
+  <button type="button" onclick="location.href='https://manorkeshet417-code.github.io/yomi/'">ניסיון חוזר</button>
+</div>
+</body>
+</html>

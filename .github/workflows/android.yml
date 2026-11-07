@@ -1,8 +1,11 @@
 name: Build Android APK
 
+# The app loads its content from GitHub Pages, so a new APK is needed only when the
+# native shell changes. Run it by hand from the Actions tab any time.
 on:
   push:
     branches: [main]
+    paths: ['capacitor.config.json', 'package.json', 'www/offline.html', '.github/workflows/android.yml']
   workflow_dispatch:
 
 permissions:
@@ -31,15 +34,28 @@ jobs:
         run: |
           if [ ! -d android ]; then npx cap add android; fi
           npx cap sync android
+          # each build gets a higher version number so phones accept it as an update
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" android/app/build.gradle
 
-      - name: Build debug APK
+      # Signed with the same key every time, so updates install over the old app and keep its data.
+      # ANDROID_SIGNING holds "<password>:<base64 of the .p12 keystore>".
+      - name: Build signed APK
         working-directory: android
+        env:
+          SIGNING: ${{ secrets.ANDROID_SIGNING }}
         run: |
+          if [ -z "$SIGNING" ]; then echo "::error::Missing the ANDROID_SIGNING secret (see README)"; exit 1; fi
+          PASS="${SIGNING%%:*}"
+          printf '%s' "${SIGNING#*:}" | base64 -d > "$RUNNER_TEMP/yomi.p12"
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/yomi.p12" \
+            -Pandroid.injected.signing.store.password="$PASS" \
+            -Pandroid.injected.signing.key.alias=yomi \
+            -Pandroid.injected.signing.key.password="$PASS"
 
       - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk yomi.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk yomi.apk
 
       - uses: actions/upload-artifact@v4
         with:

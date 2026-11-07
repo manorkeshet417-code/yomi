@@ -1049,6 +1049,9 @@ document.addEventListener('keydown',e=>{
 function clock(){const el=$('#sb-time');if(el){const d=new Date();el.textContent=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')}}
 clock();setInterval(clock,30000);
 
+// Offline support when served from the website (the Android app loads the same site)
+if('serviceWorker' in navigator&&/\.github\.io$/.test(location.hostname)){try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(e){}}
+
 /* ---------- boot ---------- */
 function ready(){S.booting=false;applyState();anim='fade';render()}
 function startLocal(){
