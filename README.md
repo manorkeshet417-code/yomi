@@ -19,15 +19,27 @@
 ## מבנה
 
 - `www/index.html` – כל האפליקציה (HTML/CSS/JS, בלי build)
-- `capacitor.config.json` – הגדרות Capacitor שעוטף את האתר כאפליקציית אנדרואיד
-- `.github/workflows/android.yml` – GitHub Actions שבונה APK בכל push ל-`main`
+- `www/sw.js` – שומר עותק של האפליקציה בטלפון כדי שתעבוד גם בלי אינטרנט
+- `www/offline.html` – מסך "אין חיבור" למקרה שהפתיחה הראשונה היא בלי אינטרנט
+- `capacitor.config.json` – אפליקציית האנדרואיד טוענת את האתר מ-GitHub Pages
+- `.github/workflows/pages.yml` – מפרסם את `www/` ל-https://manorkeshet417-code.github.io/yomi/
+- `.github/workflows/android.yml` – בונה APK חתום
+
+## איך עדכונים עובדים
+
+- **שינוי ב-`www/`** (עיצוב, כלים, טקסטים): נכנס לאתר תוך כדקה, והאפליקציה בטלפון מקבלת אותו בפתיחה הבאה. אין צורך להוריד APK.
+- **שינוי ב-`capacitor.config.json` או ב-`package.json`**: נבנה APK חדש, ונוצר **Release** עם `yomi.apk`. אפשר גם להריץ את הבנייה ידנית מלשונית **Actions**.
+- כל APK חתום באותו מפתח, כך שמתקינים אותו מעל הגרסה הקודמת והנתונים נשמרים.
+
+## מפתח החתימה
+
+- המפתח שמור מחוץ ל-repo, בתיקייה `C:\Users\user\yomi-signing`. **צריך לשמור ממנה גיבוי.**
+- ב-GitHub הוא שמור כ-secret בשם `ANDROID_SIGNING`, בפורמט `<password>:<base64 of yomi.p12>`.
+- אם המפתח יאבד, לא יהיה אפשר להתקין APK חדש מעל האפליקציה הקיימת.
 
 ## לקבל APK לטלפון
 
-1. מעלים את התיקייה ל-repo חדש ב-GitHub (ענף `main`).
-2. בלשונית **Actions** רואים את הבנייה רצה (כ-5 דקות).
-3. בסוף נוצר **Release** חדש עם הקובץ `yomi.apk`. פותחים את הדף מהטלפון, מורידים ומתקינים
-   (צריך לאשר "התקנה ממקורות לא ידועים").
+פותחים בטלפון את https://github.com/manorkeshet417-code/yomi/releases, מורידים את `yomi.apk` מה-Release האחרון ומתקינים. צריך לאשר "התקנה ממקורות לא ידועים".
 
 ## להריץ מקומית
 
