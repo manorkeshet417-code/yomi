@@ -1,0 +1,25 @@
+{
+  "name": "יומי",
+  "short_name": "יומי",
+  "description": "הכלים של היום שלך: מפתח, מעצב, מורה או הורה, ועוד מחשבון, פתקים, הרגלים וספירה לאחור.",
+  "lang": "he",
+  "dir": "rtl",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
+  "categories": ["productivity", "utilities", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "מחשבון", "url": "./#calc", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "פתקים", "url": "./#notes", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "הרגלים", "url": "./#habits", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

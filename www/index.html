@@ -327,7 +327,9 @@ button.widget:active{transform:scale(.98)}
 (function(){
 'use strict';
 const root=document.documentElement; root.lang='he'; root.dir='rtl';
-if(window.Capacitor)root.classList.add('native');
+// Opened from the home screen: fill the screen, no phone frame
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+if(standalone())root.classList.add('native');
 const app=document.getElementById('app'),navEl=document.getElementById('nav'),screenEl=document.getElementById('screen'),sheetEl=document.getElementById('sheet');
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -436,6 +438,7 @@ const I={
   calendar:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   receipt:'<path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
   compose:'<path d="M11 4.5H6A1.5 1.5 0 0 0 4.5 6v12A1.5 1.5 0 0 0 6 19.5h12a1.5 1.5 0 0 0 1.5-1.5v-5"/><path d="M17.5 3.5l3 3L12 15l-3.8.8L9 12z"/>',
+  xmark:'<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   minus:'<path d="M6.5 12h11" stroke-width="2.6"/>',
   copy:'<rect x="8.5" y="8.5" width="11" height="12" rx="2.5"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/>',
@@ -621,7 +624,7 @@ function sqTool(id,cls){const t=TOOLS[id];return `<span class="sq ${cls||''}" st
 function viewHome(){
   const r=ROLES[S.role],tasks=getTasks(),done=tasks.filter(t=>t.d).length,p=tasks.length?done/tasks.length:0;
   const tip=r.tips[new Date().getDate()%r.tips.length],active=T.running||(T.left>0&&T.left<T.total);
-  return `<div class="widgets">
+  return `${installCard()}<div class="widgets">
     <div class="widget"><div class="w-h">${icon('checkmark',14,2.4)} משימות</div><div class="ring-w">${ring(p,62,9)}<div><div class="w-big">${done}<span style="font-size:20px;color:var(--label2)">/${tasks.length}</span></div></div></div><div class="w-sub">${tasks.length&&done===tasks.length?'הכול בוצע. כל הכבוד!':`נשארו ${tasks.length-done}`}</div></div>
     <button class="widget" data-a="open-tool" data-v="timer"><div class="w-h">${icon('timer',14,2.2)} ${esc(active?T.label:r.timerName)}</div><div class="w-big" id="home-time" dir="ltr" style="text-align:end;${active?'color:var(--accent)':''}">${fmt(active?T.left:T.total)}</div><div class="w-sub">${T.running?'יסתיים ב-'+hhmm(T.endAt):active?'מושהה':`${focusMin()} דק׳ פוקוס היום`}</div></button>
   </div>
@@ -642,6 +645,13 @@ function viewTools(){
   return `<div class="section-h">ל${esc(ROLES[S.role].title)}</div>${rows(ROLES[S.role].tools)}
   <p class="section-f">הכלים האלה משתנים לפי התפקיד. אפשר להחליף תפקיד בפרופיל.</p>
   <div class="section-h">כלים כלליים</div>${rows(GENERAL)}`;
+}
+// Home: offer to install, until installed or dismissed on this device
+function installCard(){
+  if(!canInstall()||LS.get('yomi.noInstall'))return '';
+  return `<div class="tip" style="align-items:center;margin-bottom:12px"><span class="sq" style="--c:var(--c-blue)">${icon('sparkles',18)}</span>
+    <span class="body"><b>להוסיף את יומי למסך הבית</b><br><span style="color:var(--label2);font-size:13px">${installEvt?'נפתחת במסך מלא, כמו אפליקציה, וגם בלי אינטרנט.':'ב-Safari: כפתור השיתוף ואז "הוספה למסך הבית".'}</span></span>
+    ${installEvt?`<button class="btn filled sm" data-a="install">התקנה</button>`:''}<button class="icon-btn" data-a="install-hide" aria-label="סגירה" style="color:var(--label3)">${icon('xmark',18,2.2)}</button></div>`;
 }
 // Home: habits today and the nearest event, when there is something to show
 function glance(){
@@ -665,6 +675,7 @@ function viewProfile(){
   </div>
   <p class="section-f">${cloud?'הנתונים נשמרים במאגר בענן תחת חשבון Claude שלך ומסתנכרנים בכל מכשיר. רק את/ה רואה אותם.':'הנתונים נשמרים במכשיר הזה, בנפרד לכל חשבון, ונשארים גם אחרי סגירה.'}</p>
   <div class="section-h"></div>
+  ${canInstall()?`<div class="list icons" style="margin-bottom:20px"><button class="row" data-a="install"><span class="sq" style="--c:var(--c-blue)">${icon('sparkles',18)}</span><span class="body t">הוספה למסך הבית</span><span class="chev">${icon('chev',16)}</span></button></div>`:''}
   <div class="list"><button class="row blue" data-a="ask-logout">התנתקות</button><button class="row red" data-a="ask-wipe">מחיקת כל הנתונים</button></div>
   <p class="section-f" style="text-align:center;padding-top:18px">יומי 2.1</p>`;
 }
@@ -988,6 +999,11 @@ const A={
   'ch-del':b=>{const c=getChores(),before=clone(c);c.list.splice(+b.dataset.i,1);removeWithUndo('chores',before,c,'המטלה נמחקה')},
   'ch-reset':()=>{const c=getChores(),before=clone(c);c.list.forEach(x=>x.d=0);removeWithUndo('chores',before,c,'שבוע חדש התחיל')},
   'meal-copy':()=>copy(mealText()),
+  install:async()=>{
+    if(installEvt){const e=installEvt;e.prompt();try{await e.userChoice}catch(x){}installEvt=null;render();return}
+    await sheet({title:'הוספה למסך הבית',msg:'ב-Safari הקישו על כפתור השיתוף (ריבוע עם חץ למעלה), גללו ובחרו "הוספה למסך הבית", ואז "הוסף".',action:'הבנתי'});
+  },
+  'install-hide':()=>{LS.set('yomi.noInstall',1);render()},
   ck:b=>pressCalc(b.dataset.k),
   'calc-use':b=>{const h=db.get('calc.hist',[])[+b.dataset.i];if(!h)return;C.cur=h.v;C.acc=null;C.op=null;C.fresh=true;C.expr=h.e+' =';haptic();calcSync();screenEl.scrollTop=0;window.scrollTo(0,0)},
   'calc-clear':()=>{const h=db.get('calc.hist',[]);removeWithUndo('calc.hist',h,[],'ההיסטוריה נוקתה')},
@@ -1049,11 +1065,21 @@ document.addEventListener('keydown',e=>{
 function clock(){const el=$('#sb-time');if(el){const d=new Date();el.textContent=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')}}
 clock();setInterval(clock,30000);
 
-// Offline support when served from the website (the Android app loads the same site)
-if('serviceWorker' in navigator&&/\.github\.io$/.test(location.hostname)){try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(e){}}
+// Offline support and install-to-home-screen, on the website only (not in the Claude preview)
+const onSite=/\.github\.io$/.test(location.hostname);
+if(onSite&&'serviceWorker' in navigator){try{navigator.serviceWorker.register('./sw.js').catch(()=>{})}catch(e){}}
+let installEvt=null;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const canInstall=()=>onSite&&!standalone()&&(!!installEvt||isIOS());
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(!S.booting&&!typing())render()});
+window.addEventListener('appinstalled',()=>{installEvt=null;hud('יומי נוספה למסך הבית');render()});
 
 /* ---------- boot ---------- */
-function ready(){S.booting=false;applyState();anim='fade';render()}
+function ready(){
+  S.booting=false;applyState();anim='fade';render();
+  // home-screen shortcuts open a tool directly (./#calc, ./#notes, ...)
+  const h=location.hash.slice(1);if(h&&TOOLS[h]&&S.user&&S.role)go('tool',h,false);
+}
 function startLocal(){
   db.mode='local';const cur=LS.get('yomi.current');
   if(cur&&localAccounts().some(a=>a.id===cur))useLocal(cur);
@@ -1076,7 +1102,7 @@ function startCloud(){
 async function boot(){
   render();
   let cdb=null,usr=null,me=null;
-  if(!window.Capacitor&&window.claude&&typeof window.claude.use==='function'){
+  if(window.claude&&typeof window.claude.use==='function'){
     try{const r=await Promise.all([window.claude.use('db'),window.claude.use('user')]);cdb=r[0];usr=r[1]}catch(e){}
     if(cdb&&usr){try{me=await usr.me()}catch(e){}}
   }
